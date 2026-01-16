@@ -1,0 +1,17 @@
+[package]
+name = "frame_graph"
+version = "0.1.0"
+edition = "2024"
+
+[dev-dependencies]
+pollster = "0.4"
+
+[dependencies]
+wgpu = { version = "27", default-features = false, features = [
+    "wgsl",
+    "dx12",
+    "metal",
+    "vulkan",
+    "naga-ir",
+    "fragile-send-sync-non-atomic-wasm",
+] }
