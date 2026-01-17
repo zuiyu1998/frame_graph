@@ -3,14 +3,14 @@ use core::marker::PhantomData;
 use crate::{IndexHandle, PassNode, TransientResource, VirtualResource};
 
 pub struct ResourceRef<ResourceType: TransientResource, VieType> {
-    pub raw: GraphRawResourceHandle,
+    pub raw: RawResourceHandle,
     pub desc: <ResourceType as TransientResource>::Descriptor,
     _marker: PhantomData<(ResourceType, VieType)>,
 }
 
 impl<ResourceType: TransientResource, VieType> ResourceRef<ResourceType, VieType> {
     pub fn new(
-        raw: GraphRawResourceHandle,
+        raw: RawResourceHandle,
         desc: <ResourceType as TransientResource>::Descriptor,
     ) -> Self {
         Self {
@@ -50,7 +50,7 @@ impl ResourceView for ResourceRead {}
 impl ResourceView for ResourceWrite {}
 
 pub struct ResourceHandle<ResourceType: TransientResource> {
-    pub raw: GraphRawResourceHandle,
+    pub raw: RawResourceHandle,
     pub desc: <ResourceType as TransientResource>::Descriptor,
     _marker: PhantomData<ResourceType>,
 }
@@ -72,7 +72,7 @@ impl<ResourceType: TransientResource> ResourceHandle<ResourceType> {
         desc: <ResourceType as TransientResource>::Descriptor,
     ) -> Self {
         Self {
-            raw: GraphRawResourceHandle { index, version },
+            raw: RawResourceHandle { index, version },
             desc,
             _marker: PhantomData,
         }
@@ -80,7 +80,7 @@ impl<ResourceType: TransientResource> ResourceHandle<ResourceType> {
 }
 
 #[derive(PartialEq, Eq, Hash, Clone)]
-pub struct GraphRawResourceHandle {
+pub struct RawResourceHandle {
     pub index: IndexHandle<ResourceNode>,
     pub version: u32,
 }
