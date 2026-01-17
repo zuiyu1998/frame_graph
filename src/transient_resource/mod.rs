@@ -13,13 +13,33 @@ use wgpu::Device;
 
 use std::{fmt::Debug, sync::Arc};
 
-pub struct TransientResourceCreator(Device);
+#[derive(Clone)]
+pub enum VirtualResource {
+    Setuped(AnyTransientResourceDescriptor),
+    Imported(ArcAnyTransientResource),
+}
 
-impl TransientResourceCreator {
-    pub fn create_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource {
+impl VirtualResource {
+    pub fn get_desc<ResourceType: TransientResource>(&self) -> ResourceType::Descriptor {
+        let desc = match self {
+            VirtualResource::Imported(resource) => resource.get_desc(),
+            VirtualResource::Setuped(desc) => desc.clone(),
+        };
+
+        <ResourceType::Descriptor as TransientResourceDescriptor>::borrow_resource_descriptor(&desc)
+            .clone()
+    }
+}
+
+pub trait TransientResourceCreator {
+    fn create_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource;
+}
+
+impl TransientResourceCreator for Device {
+    fn create_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource {
         match desc {
             AnyTransientResourceDescriptor::Texture(desc) => {
-                let resource = self.0.create_texture(&desc.get_desc());
+                let resource = self.create_texture(&desc.get_desc());
                 TransientTexture {
                     resource,
                     desc: desc.clone(),
@@ -27,7 +47,7 @@ impl TransientResourceCreator {
                 .into()
             }
             AnyTransientResourceDescriptor::Buffer(desc) => {
-                let resource = self.0.create_buffer(&desc.get_desc());
+                let resource = self.create_buffer(&desc.get_desc());
                 TransientBuffer {
                     resource,
                     desc: desc.clone(),
@@ -39,26 +59,26 @@ impl TransientResourceCreator {
 }
 
 #[derive(Clone)]
-pub enum ArcTransientResource {
+pub enum ArcAnyTransientResource {
     Buffer(Arc<TransientBuffer>),
     Texture(Arc<TransientTexture>),
 }
 
-impl ArcTransientResource {
+impl ArcAnyTransientResource {
     pub fn get_desc(&self) -> AnyTransientResourceDescriptor {
         match self {
-            ArcTransientResource::Buffer(res) => {
+            ArcAnyTransientResource::Buffer(res) => {
                 AnyTransientResourceDescriptor::Buffer(res.desc.clone())
             }
-            ArcTransientResource::Texture(res) => {
+            ArcAnyTransientResource::Texture(res) => {
                 AnyTransientResourceDescriptor::Texture(res.desc.clone())
             }
         }
     }
 }
 
-pub trait IntoArcTransientResource: TransientResource {
-    fn into_arc_transient_resource(self: Arc<Self>) -> ArcTransientResource;
+pub trait IntoArcAnyTransientResource: TransientResource {
+    fn into_arc_transient_resource(self: Arc<Self>) -> ArcAnyTransientResource;
 }
 
 pub enum AnyTransientResource {

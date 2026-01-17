@@ -6,13 +6,13 @@ use wgpu::{
 };
 
 use super::{
-    AnyTransientResource, AnyTransientResourceDescriptor, ArcTransientResource,
-    IntoArcTransientResource, TransientResource, TransientResourceDescriptor,
+    AnyTransientResource, AnyTransientResourceDescriptor, ArcAnyTransientResource,
+    IntoArcAnyTransientResource, TransientResource, TransientResourceDescriptor,
 };
 
-impl IntoArcTransientResource for TransientBuffer {
-    fn into_arc_transient_resource(self: Arc<Self>) -> ArcTransientResource {
-        ArcTransientResource::Buffer(self)
+impl IntoArcAnyTransientResource for TransientBuffer {
+    fn into_arc_transient_resource(self: Arc<Self>) -> ArcAnyTransientResource {
+        ArcAnyTransientResource::Buffer(self)
     }
 }
 

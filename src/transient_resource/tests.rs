@@ -29,8 +29,6 @@ mod tests {
         }))
         .expect("Failed to get device");
 
-        let creator = TransientResourceCreator(device);
-
         let buffer_desc = TransientBufferDescriptor {
             label: Some("test buffer".to_string()),
             size: 1024,
@@ -39,7 +37,7 @@ mod tests {
         };
         let any_desc = AnyTransientResourceDescriptor::Buffer(buffer_desc.clone());
 
-        let resource = creator.create_resource(&any_desc);
+        let resource = device.create_resource(&any_desc);
 
         match resource {
             AnyTransientResource::OwnedBuffer(buffer) => {
@@ -70,8 +68,6 @@ mod tests {
         }))
         .expect("Failed to get device");
 
-        let creator = TransientResourceCreator(device);
-
         let texture_desc = TransientTextureDescriptor {
             label: Some("test texture".to_string()),
             size: Extent3d {
@@ -88,7 +84,7 @@ mod tests {
         };
         let any_desc = AnyTransientResourceDescriptor::Texture(texture_desc.clone());
 
-        let resource = creator.create_resource(&any_desc);
+        let resource = device.create_resource(&any_desc);
 
         match resource {
             AnyTransientResource::OwnedTexture(texture) => {
@@ -120,8 +116,6 @@ mod tests {
         }))
         .expect("Failed to get device");
 
-        let creator = TransientResourceCreator(device);
-
         let buffer_desc = TransientBufferDescriptor {
             label: None,
             size: 2048,
@@ -144,9 +138,9 @@ mod tests {
         };
 
         let buffer_resource =
-            creator.create_resource(&AnyTransientResourceDescriptor::Buffer(buffer_desc));
+            device.create_resource(&AnyTransientResourceDescriptor::Buffer(buffer_desc));
         let texture_resource =
-            creator.create_resource(&AnyTransientResourceDescriptor::Texture(texture_desc));
+            device.create_resource(&AnyTransientResourceDescriptor::Texture(texture_desc));
 
         match buffer_resource {
             AnyTransientResource::OwnedBuffer(_) => {}

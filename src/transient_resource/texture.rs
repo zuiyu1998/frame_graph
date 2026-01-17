@@ -1,13 +1,13 @@
 use super::{
-    AnyTransientResource, AnyTransientResourceDescriptor, ArcTransientResource,
-    IntoArcTransientResource, TransientResource, TransientResourceDescriptor,
+    AnyTransientResource, AnyTransientResourceDescriptor, ArcAnyTransientResource,
+    IntoArcAnyTransientResource, TransientResource, TransientResourceDescriptor,
 };
 use std::sync::Arc;
 use wgpu::{Extent3d, Texture, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages};
 
-impl IntoArcTransientResource for TransientTexture {
-    fn into_arc_transient_resource(self: Arc<Self>) -> ArcTransientResource {
-        ArcTransientResource::Texture(self)
+impl IntoArcAnyTransientResource for TransientTexture {
+    fn into_arc_transient_resource(self: Arc<Self>) -> ArcAnyTransientResource {
+        ArcAnyTransientResource::Texture(self)
     }
 }
 
