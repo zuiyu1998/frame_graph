@@ -6,8 +6,6 @@ pub use buffer::*;
 pub use cache::*;
 pub use texture::*;
 
-use wgpu::Device;
-
 use std::{fmt::Debug, sync::Arc};
 
 #[derive(Clone)]
@@ -25,33 +23,6 @@ impl VirtualResource {
 
         <ResourceType::Descriptor as TransientResourceDescriptor>::borrow_resource_descriptor(&desc)
             .clone()
-    }
-}
-
-pub trait TransientResourceCreator {
-    fn create_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource;
-}
-
-impl TransientResourceCreator for Device {
-    fn create_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource {
-        match desc {
-            AnyTransientResourceDescriptor::Texture(desc) => {
-                let resource = self.create_texture(&desc.get_desc());
-                TransientTexture {
-                    resource,
-                    desc: desc.clone(),
-                }
-                .into()
-            }
-            AnyTransientResourceDescriptor::Buffer(desc) => {
-                let resource = self.create_buffer(&desc.get_desc());
-                TransientBuffer {
-                    resource,
-                    desc: desc.clone(),
-                }
-                .into()
-            }
-        }
     }
 }
 
@@ -148,9 +119,12 @@ mod tests {
     use wgpu::BufferUsages;
     use wgpu::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
 
-    use crate::transient_resource::{
-        AnyTransientResource, AnyTransientResourceDescriptor, TransientBufferDescriptor,
-        TransientResourceCreator, TransientTextureDescriptor,
+    use crate::{
+        TransientResourceCreator,
+        transient_resource::{
+            AnyTransientResource, AnyTransientResourceDescriptor, TransientBufferDescriptor,
+            TransientTextureDescriptor,
+        },
     };
 
     #[test]

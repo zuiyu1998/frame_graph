@@ -4,12 +4,12 @@ use crate::{
     ResourceRead, ResourceRef, ResourceView, ResourceWrite, TransientTexture, pass::PassContext,
 };
 
-pub type TransientTextureViewDescriptorRead = TransientTextureViewDescriptor<ResourceRead>;
+pub type TransientTextureViewRead = TransientTextureView<ResourceRead>;
 
-pub type TransientTextureViewDescriptorWrite = TransientTextureViewDescriptor<ResourceWrite>;
+pub type TransientTextureViewWrite = TransientTextureView<ResourceWrite>;
 
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
-pub struct TextureViewDescriptor {
+pub struct TransientTextureViewDescriptor {
     pub label: Option<String>,
     pub format: Option<TextureFormat>,
     pub dimension: Option<TextureViewDimension>,
@@ -21,7 +21,7 @@ pub struct TextureViewDescriptor {
     pub array_layer_count: Option<u32>,
 }
 
-impl TextureViewDescriptor {
+impl TransientTextureViewDescriptor {
     pub fn get_desc<'a>(&'a self) -> wgpu::TextureViewDescriptor<'a> {
         wgpu::TextureViewDescriptor {
             label: self.label.as_deref(),
@@ -37,30 +37,30 @@ impl TextureViewDescriptor {
     }
 }
 
-pub struct TransientTextureViewDescriptor<ViewType> {
+pub struct TransientTextureView<ViewType> {
     pub texture: ResourceRef<TransientTexture, ViewType>,
-    pub desc: TextureViewDescriptor,
+    pub desc: TransientTextureViewDescriptor,
 }
 
-impl<ViewType: ResourceView> TransientTextureViewDescriptor<ViewType> {
-    pub fn create_gpu_texture_view(&self, context: &PassContext) -> TextureView {
+impl<ViewType: ResourceView> TransientTextureView<ViewType> {
+    pub fn create_texture_view(&self, context: &PassContext) -> TextureView {
         let resource = context.get_resource(&self.texture);
         resource.resource.create_view(&self.desc.get_desc())
     }
 }
 
-pub enum TransientTextureView {
-    Read(TransientTextureViewDescriptorRead),
-    Write(TransientTextureViewDescriptorWrite),
+pub enum TextureViewEdge {
+    Read(TransientTextureViewRead),
+    Write(TransientTextureViewWrite),
     Owned(TextureView),
 }
 
-impl TransientTextureView {
+impl TextureViewEdge {
     pub fn create_texture_view(&self, context: &PassContext) -> TextureView {
         match self {
-            TransientTextureView::Read(desc) => desc.create_gpu_texture_view(context),
-            TransientTextureView::Write(desc) => desc.create_gpu_texture_view(context),
-            TransientTextureView::Owned(texture_view) => texture_view.clone(),
+            TextureViewEdge::Read(desc) => desc.create_texture_view(context),
+            TextureViewEdge::Write(desc) => desc.create_texture_view(context),
+            TextureViewEdge::Owned(texture_view) => texture_view.clone(),
         }
     }
 }

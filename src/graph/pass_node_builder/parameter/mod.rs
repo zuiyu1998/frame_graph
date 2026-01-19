@@ -1,12 +1,16 @@
 mod draw_indexed_parameter;
 mod draw_parameter;
+mod set_bind_group_parameter;
 mod set_index_buffer_parameter;
 mod set_render_pipeline_parameter;
 mod set_vertex_buffer_parameter;
 
-use crate::{RenderPass, RenderPassCommand, ResourceRead, ResourceRef, TransientBuffer};
+use crate::{
+    RenderPass, RenderPassCommand, ResourceRead, ResourceRef, TransientBindGroup, TransientBuffer,
+};
 use draw_indexed_parameter::*;
 use draw_parameter::*;
+use set_bind_group_parameter::*;
 use set_index_buffer_parameter::*;
 use set_render_pipeline_parameter::*;
 use set_vertex_buffer_parameter::*;
@@ -15,6 +19,14 @@ use wgpu::{IndexFormat, RenderPipeline};
 
 pub trait RenderPassExt {
     fn push<T: RenderPassCommand>(&mut self, value: T);
+
+    fn set_bind_group(&mut self, index: u32, bind_group: &TransientBindGroup, offsets: &[u32]) {
+        self.push(SetBindGroupParameter {
+            index,
+            bind_group: bind_group.clone(),
+            offsets: offsets.to_vec(),
+        });
+    }
 
     fn draw_indexed(&mut self, indices: Range<u32>, base_vertex: i32, instances: Range<u32>) {
         self.push(DrawIndexedParameter {

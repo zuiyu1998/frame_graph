@@ -6,12 +6,12 @@ pub use gpu_render_pass::*;
 
 use wgpu::{Color, Operations};
 
-use crate::{PassCommand, PassContext, TransientTextureView};
+use crate::{PassCommand, PassContext, TextureViewEdge};
 
 pub struct TransientRenderPassColorAttachment {
-    pub view: TransientTextureView,
+    pub view: TextureViewEdge,
     pub depth_slice: Option<u32>,
-    pub resolve_target: Option<TransientTextureView>,
+    pub resolve_target: Option<TextureViewEdge>,
     pub ops: Operations<Color>,
 }
 
@@ -33,7 +33,7 @@ impl TransientRenderPassColorAttachment {
 }
 
 pub struct TransientRenderPassDepthStencilAttachment {
-    pub view: TransientTextureView,
+    pub view: TextureViewEdge,
     pub depth_ops: Option<Operations<f32>>,
     pub stencil_ops: Option<Operations<u32>>,
 }
